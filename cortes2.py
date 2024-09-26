@@ -4,7 +4,7 @@ def cutting_stock_optimization(rod_length_mm, piece_lengths_mm, piece_quantities
     model = cp_model.CpModel()
 
     # Variables
-    num_rods = sum(piece_quantities)  # Número máximo de barras que se podrían usar
+    num_rods = sum(piece_quantities)  # Número máximo de barras posibles
     x = {}  # x[i, j] = 1 si la barra i contiene la pieza j
 
     for i in range(num_rods):
@@ -35,13 +35,17 @@ def cutting_stock_optimization(rod_length_mm, piece_lengths_mm, piece_quantities
         for i in range(num_rods):
             if solver.Value(rods_used[i]) == 1:
                 print(f'Barra {i + 1} contiene las piezas:')
+                total_length = 0
                 for j in range(len(piece_lengths_mm)):
                     if solver.Value(x[i, j]) == 1:
                         print(f' - {piece_lengths_mm[j] / 1000} metros (cantidad: 1)')
+                        total_length += piece_lengths_mm[j]
+                print(f' - Longitud total usada: {total_length / 1000} metros')
+                print(f' - Espacio desperdiciado: {(rod_length_mm - total_length) / 1000} metros')
     else:
         print('No se encontró una solución óptima.')
 
-# Datos de entrada
+# Datos de entrada (convertidos a milímetros)
 rod_length_mm = 6000  # Longitud de las barras de hierro en milímetros
 piece_lengths_mm = [3100, 850, 1200, 4200, 3600, 700, 1500]  # Longitudes de las piezas en milímetros
 piece_quantities = [2, 2, 2, 2, 2, 2, 15]  # Cantidades necesarias para cada longitud
